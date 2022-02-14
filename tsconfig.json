@@ -5,7 +5,7 @@
     "sourceMap": true,
     "strict": true,
     "rootDir": "src",
-    "outDir": "dist",
+    "outDir": "dists",
     "skipLibCheck": true,
     "esModuleInterop": true
   },
