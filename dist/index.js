@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const discord_1 = require("./modules/discord");
+const keepAlive = require("../server");
+keepAlive();
 if (fs_1.default.existsSync('./map.json')) {
     discord_1.listen();
 }
