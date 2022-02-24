@@ -103,7 +103,7 @@ export const listen = async (): Promise<void> => {
           const {
             avatar, username, id, discriminator,
           } = message.d.author;
-          const wbUrl = 'https://discord.com/api/webhooks/942736723010519080/v8m6mgxYHppQXH2cfB9aAAgA1xCEoLb2aLnHd5DtJhn427CboupsNOO540-7RYuR_V8P'
+          const wbUrl = 'https://discord.com/api/webhooks/946434663512166430/3Il94TQzskLf03mldwp79TJYOjszfcvVBXl7t8Ok58X5KB0jehf1ydoDd_IUz2lBsh_F'
           const pAvatar = 'https://cdn.discordapp.com/attachments/863392082872893472/942006203486191676/Phantoms_Banner_-_Black.jpg'
           const avatarUrl = `https://cdn.discordapp.com/avatars/${id}/${avatar}.png`;
           const webhookUrl = serverMap[channelId];
